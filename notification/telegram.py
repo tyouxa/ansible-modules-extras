@@ -45,6 +45,25 @@ options:
     description:
       - Telegram group or user chat_id
     required: true
+  disable_web_page_preview:
+    description:
+      - Disables link previews for links in this message
+    required: false
+    default: 'True'
+    choices:
+      - 'True'
+      - 'False'
+    version_added: "2.3"
+  disable_notification:
+    description:
+      - Sends the message silently.
+    required: false
+    default: 'False'
+    choices:
+      - 'True'
+      - 'False'
+    version_added: "2.3"
+  
 
 """
 
@@ -54,6 +73,8 @@ send a message to chat in playbook
 - telegram:  token=bot9999999:XXXXXXXXXXXXXXXXXXXXXXX
     chat_id=000000
     msg="Ansible task finished"
+    disable_web_page_preview="False"
+    disable_notification="True"
 
 """
 
@@ -76,15 +97,20 @@ def main():
         argument_spec = dict(
             token = dict(type='str',required=True,no_log=True),
             chat_id = dict(type='str',required=True,no_log=True),
-            msg = dict(type='str',required=True)),
+            msg = dict(type='str',required=True),
+            disable_web_page_preview = dict(type='str',default='True'),
+            disable_notification = dict(type='str',default='False')),
         supports_check_mode=True
     )
 
     token = urllib.quote(module.params.get('token'))
     chat_id = urllib.quote(module.params.get('chat_id'))
     msg = urllib.quote(module.params.get('msg'))
+    disable_web_page_preview = urllib.quote(module.params.get('disable_web_page_preview'))
+    disable_notification = urllib.quote(module.params.get('disable_notification'))
 
-    url = 'https://api.telegram.org/' + token + '/sendMessage?text=' + msg + '&chat_id=' + chat_id
+
+    url = 'https://api.telegram.org/' + token + '/sendMessage?text=' + msg + '&chat_id=' + chat_id + '&disable_web_page_preview=' + disable_web_page_preview + '&disable_notification=' + disable_notification
 
     if module.check_mode:
         module.exit_json(changed=False)
